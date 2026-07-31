@@ -19,7 +19,7 @@
 !/ModelsBack/**/*
 !/DisplacementMaps/**/*
 !/out/saveworker.js
-
+!/main.js
 !/.github/workflows/*.yml
 !/.editorconfig
 !/.eslintrc.json

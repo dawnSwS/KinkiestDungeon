@@ -1,0 +1,56 @@
+name: Build Windows Electron App
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 5.5
+
+jobs:
+  build:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        include:
+          - arch: x64
+            folder: win64
+            dir: win-unpacked
+          - arch: ia32
+            folder: win32
+            dir: win-ia32-unpacked
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 20
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - run: npm install
+
+      - run: npm run build
+
+      - run: npx electron-builder --win dir --${{ matrix.arch }}
+
+      - name: Compress with 7z
+        shell: bash
+        run: |
+          7z a -sfx -t7z "dist_electron/5.5-UV.exe" "./dist_electron/${{ matrix.dir }}/*" -m0=lzma2 -mx=9 -md=256m -mfb=273 -v300m -p"kd" -mhe=on
+
+      - name: Upload to Cloudflare R2
+        shell: bash
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.CF_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.CF_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+        run: |
+          aws s3 cp dist_electron/ s3://${{ secrets.CF_BUCKET }}/${{ matrix.folder }}/ \
+            --recursive \
+            --exclude "*" \
+            --include "5.5-UV.exe" \
+            --include "5.5-UV.7z.*" \
+            --endpoint-url https://${{ secrets.CF_ACCOUNT_ID }}.r2.cloudflarestorage.com

@@ -1,8 +1,8 @@
 {
     "name": "kinkiest-dungeon",
-    "version": "1.0.0",
-    "description": "This is the official git repo for Kinky Dungeon.",
-    "main": "index.html",
+    "version": "5.5.0-beta.9",
+    "description": "Unofficial version",
+    "main": "main.js",
     "scripts": {
         "build": "tsc && npm run pack",
         "buildCont": "tsc -b --watch",
@@ -10,17 +10,52 @@
         "buildTypes": "tsc --declaration --emitDeclarationOnly --removeComments false",
         "serve": "http-server",
         "pack": "python tools/pack.py",
-		"forcepack": "python tools/pack.py rc"
+        "forcepack": "python tools/pack.py rc",
+        "start": "npm run build && electron .",
+        "dist": "npm run build && electron-builder"
     },
     "author": "Ada18980",
     "license": "All Rights Reserved",
     "private": true,
     "devDependencies": {
         "@typescript/lib-dom": "npm:@types/web@^0.0.151",
+        "electron": "^30.0.0",
+        "electron-builder": "^24.13.3",
         "http-server": "^14.1.1",
         "pixi-filters": "5.2.0",
         "pixi.js": "^7.2.1",
         "pixi.js-legacy": "^7.2.1",
         "typescript": "^5.6.0"
+    },
+    "build": {
+        "appId": "com.kinkydungeon.game",
+        "productName": "Kinky Dungeon 5.5-beta.9 (非官方版)",
+        "directories": {
+            "output": "dist_electron"
+        },
+        "win": {
+            "target": [
+                "nsis",
+                "portable"
+            ]
+        },
+        "linux": {
+            "target": [
+                "AppImage",
+                "tar.gz"
+            ],
+            "category": "Game"
+        },
+        "files": [
+            "**/*",
+            "main.js",
+            "**/*.js",
+            "!**/*.ts",
+            "!**/*.py",
+            "!.github",
+            "!tools",
+            "!tsconfig.json",
+            "!dist_electron"
+        ]
     }
 }
